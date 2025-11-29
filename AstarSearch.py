@@ -1,10 +1,13 @@
+import heapq
+import math
+
 class AstarSearch:
     def __init__(self, start, goal, heuristic):
         self.start = start
         self.goal = goal
         self.heuristic = heuristic
-        self.open_set = set()
-        self.closed_set = set()
+        self.buildings_open = set()
+        self.buildings_visited = set()
         self.came_from = {}
         self.g_score = {}
         self.f_score = {}
@@ -45,4 +48,5 @@ class AstarSearch:
                 self.f_score[neighbor] = tentative_g_score + self.heuristic(neighbor, self.goal)
 
         return self.f_score  # Path not found
+
 
