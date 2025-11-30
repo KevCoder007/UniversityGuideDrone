@@ -7,7 +7,7 @@ class AstarSearch:
         # Using Euclidean distance as heuristic
         return math.dist(start, goal)
 
-    #main A* search function
+    # main A* search function
     def astar(self, start, goal, neighbors_func, cost_func):
         open_set = [] # set of nodes to be evaluated
         heapq.heappush(open_set, (0, start)) 
