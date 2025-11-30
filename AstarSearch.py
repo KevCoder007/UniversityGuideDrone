@@ -1,52 +1,43 @@
 import heapq
 import math
 
+# A* Search Algorithm Implementation
 class AstarSearch:
-    def __init__(self, start, goal, heuristic):
-        self.start = start
-        self.goal = goal
-        self.heuristic = heuristic
-        self.buildings_open = set()
-        self.buildings_visited = set()
-        self.came_from = {}
-        self.g_score = {}
-        self.f_score = {}
+    def heuristic(self, start, goal):
+        # Using Euclidean distance as heuristic
+        return math.dist(start, goal)
 
-    def reconstruct_path(self, current):
+    #main A* search function
+    def astar(self, start, goal, neighbors_func, cost_func):
+        open_set = [] # set of nodes to be evaluated
+        heapq.heappush(open_set, (0, start)) 
+        came_from = {}
+        g_score = {start: 0}
+        f_score = {start: self.heuristic(start, goal)}
+
+        while open_set:
+            current = heapq.heappop(open_set)[1]
+
+            if current == goal:
+                return self.reconstruct_path(came_from, current)
+
+            for neighbor in neighbors_func(current):
+                tentative_g_score = g_score[current] + cost_func(current, neighbor)
+
+                if tentative_g_score < g_score.get(neighbor, float('inf')):
+                    came_from[neighbor] = current
+                    g_score[neighbor] = tentative_g_score
+                    f_score[neighbor] = tentative_g_score + self.heuristic(neighbor, goal)
+                    if neighbor not in [i[1] for i in open_set]:
+                        heapq.heappush(open_set, (f_score[neighbor], neighbor))
+
+        return None  # Path not found
+    
+    # Helper function to reconstruct the path from came_from map
+    def reconstruct_path(self, came_from, current):
         total_path = [current]
-        while current in self.came_from:
-            current = self.came_from[current]
+        while current in came_from:
+            current = came_from[current]
             total_path.append(current)
-        return total_path[::-1]
-
-    def search(self):
-        self.open_set.add(self.start)
-        self.g_score[self.start] = 0
-        self.f_score[self.start] = self.heuristic(self.start, self.goal)
-
-        while self.open_set:
-            current = min(self.open_set, key=lambda x: self.f_score.get(x, float('inf')))
-            if current == self.goal:
-                return self.reconstruct_path(current)
-
-            self.open_set.remove(current)
-            self.closed_set.add(current)
-
-            for neighbor in current.get_neighbors():
-                if neighbor in self.closed_set:
-                    continue
-
-                tentative_g_score = self.g_score.get(current, float('inf')) + current.distance_to(neighbor)
-
-                if neighbor not in self.open_set:
-                    self.open_set.add(neighbor)
-                elif tentative_g_score >= self.g_score.get(neighbor, float('inf')):
-                    continue
-
-                self.came_from[neighbor] = current
-                self.g_score[neighbor] = tentative_g_score
-                self.f_score[neighbor] = tentative_g_score + self.heuristic(neighbor, self.goal)
-
-        return self.f_score  # Path not found
-
+        return total_path[::-1]  # Return reversed path
 
